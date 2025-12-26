@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escalação Acolhida - Picuí</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="img-container">
+        <img src="./assets/pastoral-image.jpeg" alt="pastoral-image" class="img">
+    </div>
+    <div class="card">
+        <h4>Pastoral da Acolhida</h4>
+        <p>
+            Formulário de disponibilidade da Pastoral da Acolhida para o mês de novembro.<br> 
+        </p>
+        <p>
+          <b>
+            Lembramos a todos que, no intuito de não sobrecarregar ninguém, cada
+            membro servirá, no máximo, duas vezes ao mês. Em casos de indisponibilidade de servir,
+            por gentileza, informem com antecedência para que sejam realizadas as devidas
+            substituições.
+          </b>
+        </p>
+    </div>
+    <div class="form">
+        <div class="card card-nome">
+            <h3><b>Nome e sobrenome</b></h3>
+            <p>(Para casais, seguir o modelo de nomes: Maria e José)</p>
+            <input type="text" placeholder="Sua resposta" class="input" id="nome">
+        </div>
+         <div class="card card-disponibilidade" id="days-container"></div>
+        </div>
+        <div class="card card-obs">
+            <p>
+                Se você tiver alguma observação sobre sua disponibilidade neste mês,
+                coloque-a abaixo:
+            </p>
+            <input type="text" class="input" placeholder="Sua resposta" id="obs">
+        </div>
+        <div class="footer">
+            <button class="button" id="submit-button">
+              <span class="text-button"><b>Enviar</b></span>
+            </button>
+            <button id="teste">Teste</button>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script type="module" src="./script-disponibilidade.js"></script>
+</body>
+</html>
