@@ -2,31 +2,12 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, 
-  collection, 
-  addDoc, 
-  setDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  doc, 
-  getDocs } 
-from 'firebase/firestore/lite';
+import { deleteOldDisponibilidades, 
+        mapDaysToDisponibilidades, 
+        addNewDisponibilidades, setObs, getDaysOfMass} from './services/firebase.js'
 
 const app = express();
 const PORT = 3000;
-
-const firebaseConfig = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    projectId: process.env.PROJECT_ID,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID
-};
-const appFirebase = initializeApp(firebaseConfig);
-const db = getFirestore(appFirebase);
 
 app.use(express.json());
 
@@ -37,12 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/getDaysOfMass', async (req, res) => {
     try {
-        const days = {};
-        const q = query(collection(db, 'diasDeMissa'), where("habilitado", "==", true));
-        const daysBd = await getDocs(q);
-        daysBd.forEach(doc => {
-            days[doc.id] = doc.data();
-        });
+        const days = await getDaysOfMass();
         res.json({
             success: true,
             days
@@ -56,8 +32,14 @@ app.get('/getDaysOfMass', async (req, res) => {
     }
 });
 
-app.post('/submit', (req, res) => {
+app.post('/submit', async (req, res) => {
     console.log(req.body);
+    const {name, obs, daysSelected, monthSelected } = req.body;
+    // TODO: validações + try catch
+    await setObs(name, obs);
+    await deleteOldDisponibilidades(name, monthSelected); 
+    const daysSelectedDb = mapDaysToDisponibilidades(daysSelected, name, monthSelected);
+    await addNewDisponibilidades(daysSelectedDb); 
     res.json({
         success: true
     });

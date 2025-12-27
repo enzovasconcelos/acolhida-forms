@@ -56,9 +56,15 @@ function sendToServer(data) {
             'Content-Type': 'application/json; charset=UTF-8'
         },
         body: JSON.stringify(data)
-    }).then((response) => {
-        console.log(response);
-    }).catch(error => {
+    }).then(response => {
+        if(response.status !== 200) {
+            console.error("An error ocurred to submit forms:", response);
+        }
+        return response.json();
+    }).then(data => {
+        console.log('response data:', data);
+    })
+    .catch(error => {
         console.error(error);
     });
 }
@@ -201,69 +207,18 @@ async function submit() {
       alert('Nome vazio');
       return;
     }
-    const daysSelectedDb = mapDaysToDisponibilidades(daysSelected, name, monthSelected);
-    console.log('dias selecionados: ---');
-    console.log(daysSelectedDb);
+    console.log('submiting: ', {
+        daysSelected,
+        name,
+        monthSelected,
+        obs
+    })
     sendToServer({
-        daysSelectedDb,
+        daysSelected,
         name,
         monthSelected,
         obs
     });
-    //await setDoc(doc(db, 'servidores', name), { obs });
-    //await deleteOldDisponibilidades(name, monthSelected); 
-    //await addNewDisponibilidades(daysSelectedDb); 
-    console.log('days selecteds saved');
 }
-
-const addNewDisponibilidades = async disponibilidades => {
-    const promises = [];
-    disponibilidades.forEach(disponibilidade => 
-        promises.push(addDoc(collection(db, 'disponibilidades'), disponibilidade)));
-    return Promise.all(promises);
-};
-
-const mapDaysToDisponibilidades = (days, name, monthSelected) => {
-    const daysSelected = [];
-    const servidoresCollection = collection(db, 'servidores');
-    const diasDeMissaCollection = collection(db, 'diasDeMissa');
-    for(let dayId in days) {
-        if(days[dayId].length > 0) {
-            daysSelected.push({
-                mes: monthSelected,
-                servidor: doc(servidoresCollection, name),
-                diaDeMissa: doc(diasDeMissaCollection, dayId),
-                dias: days[dayId]
-            });
-        }
-    }
-    return daysSelected;
-};
-
-const getDisponibilidades = async (servidor, month) => {
-    const disponibilidades = [];
-    const servidorRef = doc(db, 'servidores', servidor);
-    const q = query(collection(db, 'disponibilidades'), where('servidor', '==', servidorRef), 
-                                                        where('mes', '==', month));
-    const disponibilidadesBd = await getDocs(q);
-    disponibilidadesBd.forEach(doc => {
-        disponibilidades.push({
-          id: doc.id,
-          ...doc.data()
-        });
-    });
-    return disponibilidades;
-};
-
-const deleteOldDisponibilidades = async (servidor, month) => {
-    const disponibilidades = await getDisponibilidades(servidor, month);
-    console.log("disponibilidades antigas");
-    console.log(disponibilidades);
-    const promises = [];
-    disponibilidades.forEach(disponibilidade => {
-        promises.push(deleteDoc(doc(db, 'disponibilidades', disponibilidade.id)));
-    });
-    await Promise.all(promises);
-};
 
 main();
