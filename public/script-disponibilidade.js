@@ -51,7 +51,7 @@ async function main() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const monthUrl = parseInt(urlParams.get('month'));
-    if(!monthUrl || monthUrl < 0 || monthUrl > 11) {
+    if(isNaN(monthUrl) || monthUrl < 0 || monthUrl > 11) {
         console.error('month undefined');
         alert("Mês indefinido");
         return;
