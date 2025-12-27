@@ -1,7 +1,7 @@
 # Environment variables and secrets
 env:
   - variable: STORAGE_BUCKET
-    secret: STORAGE_BUCkET
+    secret: STORAGE_BUCKET
 
   - variable: API_KEY
     secret: API_KEY
