@@ -27,7 +27,8 @@ app.get('/getDaysOfMass', async (req, res) => {
         console.error('An error ocurred when get days of mass:', error);
         res.status(500).json({
             success: false,
-            message: 'An error ocurred when get days of mass'
+            message: 'An error ocurred when get days of mass',
+            error
         });
     }
 });
