@@ -1,26 +1,3 @@
-// Import the functions you need from the SDKs you need
-//import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-
-/*import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  setDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  doc, 
-  getDocs } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-// https://firebase.google.com/docs/web/setup#available-libraries
-// Your web app's Firebase configuration
-const firebaseConfig = {
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-*/
-
 const mapNumberToDays = {
     0: 'Domingos',
     1: 'Segundas-feira',
@@ -34,10 +11,11 @@ const mapNumberToDays = {
 let days = {};
 let daysSelected  = {};
 let monthSelected = -1;
+let baseUrl = "";
 
 const getDaysOfMass = async () => { 
     try {
-        const response = await fetch('http://localhost:3000/getDaysOfMass', { method: 'GET' });
+        const response = await fetch(`${baseUrl}/getDaysOfMass`, { method: 'GET' });
         if(response.status !== 200) {
             console.error('An error when try get days of mass:', response);
             return;
@@ -50,7 +28,7 @@ const getDaysOfMass = async () => {
 }
 
 function sendToServer(data) {
-    fetch('http://localhost:3000/submit', {
+    fetch(`${baseUrl}/submit`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json; charset=UTF-8'
@@ -78,6 +56,7 @@ async function main() {
         alert("Mês indefinido");
         return;
     }
+    baseUrl = window.location.origin;
     monthSelected = monthUrl;
     console.log(`Escalação para o mês ${monthSelected}`);
     await getDaysOfMass();
