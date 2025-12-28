@@ -35,7 +35,11 @@ app.get('/getDaysOfMass', async (req, res) => {
 
 app.post('/submit', async (req, res) => {
     console.log(req.body);
-    const {name, obs, daysSelected, monthSelected } = req.body;
+    const { name, obs, daysSelected, monthSelected } = req.body;
+    console.log('name:', name)
+    console.log('obs', obs)
+    console.log('daysSelected:', daysSelected)
+    console.log('monthSelected:', monthSelected)
     // TODO: validações + try catch
     await setObs(name, obs);
     await deleteOldDisponibilidades(name, monthSelected); 

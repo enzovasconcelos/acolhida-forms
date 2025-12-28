@@ -36,9 +36,9 @@ const getDisponibilidades = async (servidor, month) => {
     return disponibilidades;
 };
 
-export const deleteOldDisponibilidades = async (servidor, month) => {
-    const disponibilidades = await getDisponibilidades(servidor, month);
-    console.log("disponibilidades antigas");
+export const deleteOldDisponibilidades = async (name, month) => {
+    const disponibilidades = await getDisponibilidades(name, month);
+    console.log(`disponibilidades antigas de ${name} e mês ${month}`);
     console.log(disponibilidades);
     const promises = [];
     disponibilidades.forEach(disponibilidade => {

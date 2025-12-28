@@ -41,10 +41,26 @@ function sendToServer(data) {
         return response.json();
     }).then(data => {
         console.log('response data:', data);
+        showFormsAnswered();
     })
     .catch(error => {
         console.error(error);
     });
+}
+
+function showFormsAnswered() {
+    const loading = document.getElementById("answered");
+    const div = document.createElement("div");
+    div.classList.add("answered-content");
+    div.classList.add("card");
+    const p = document.createElement("p");
+    p.innerText = "Resposta submetida. 🎉🎉🎉";
+    div.appendChild(p);
+    loading.appendChild(div);
+    const content = document.getElementById("forms");
+    content.innerHTML = '';
+    const formsDescription = document.getElementById("forms-description");
+    formsDescription.innerHTML = '';
 }
 
 async function main() {
