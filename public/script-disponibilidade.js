@@ -28,6 +28,7 @@ const getDaysOfMass = async () => {
 }
 
 function sendToServer(data) {
+    showLoading();
     fetch(`${baseUrl}/submit`, {
         method: 'POST',
         headers: {
@@ -41,11 +42,24 @@ function sendToServer(data) {
         return response.json();
     }).then(data => {
         console.log('response data:', data);
+        hideLoading();
         showFormsAnswered();
     })
     .catch(error => {
         console.error(error);
     });
+}
+
+function showLoading() {
+    const loadingContent = document.getElementById("loading");
+    loadingContent.innerHTML = `
+        <p>Submetendo resposta...</p>
+    `;
+}
+
+function hideLoading() {
+    const loadingContent = document.getElementById("loading");
+    loadingContent.innerText = '';
 }
 
 function showFormsAnswered() {
