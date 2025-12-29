@@ -95,22 +95,30 @@ function showFormsAnswered() {
     loading.appendChild(div);
 }
 
-async function main() {
+function getMonthFromUrl() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const monthUrl = parseInt(urlParams.get('month'));
     if(isNaN(monthUrl) || monthUrl < 0 || monthUrl > 11) {
         console.error('month undefined');
         alert("Mês indefinido");
-        return;
+        throw new Error("Month selected undefined");
     }
-    baseUrl = window.location.origin;
-    monthSelected = monthUrl;
+    return monthUrl;
+}
+
+async function main() {
+    monthSelected = getMonthFromUrl();
     console.log(`Escalação para o mês ${monthSelected}`);
+    baseUrl = window.location.origin;
     await getDaysOfMass();
     setDaysInUI(days);
     const response = await getMassGroups();
     setMassGroupsInUI(response.groups);
+    addEventListenerOnSubmitButton();
+}
+
+function addEventListenerOnSubmitButton() {
     const submitButton = document.getElementById('submit-button');
     submitButton.addEventListener('click', submit);
 }
