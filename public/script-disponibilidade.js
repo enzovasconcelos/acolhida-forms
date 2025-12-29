@@ -8,10 +8,21 @@ const mapNumberToDays = {
     6: 'Sábados',
 };
 
+const mapIntToDayWeek = {
+    0: 'Domingo',
+    1: 'Segunda',
+    2: 'Terça',
+    3: 'Quarta',
+    4: 'Quinta',
+    5: 'Sexta',
+    6: 'Sábado',
+};
+
 let days = {};
 let daysSelected  = {};
 let monthSelected = -1;
 let baseUrl = "";
+let massSelecteds = [];
 
 const getDaysOfMass = async () => { 
     try {
@@ -28,6 +39,7 @@ const getDaysOfMass = async () => {
 }
 
 function sendToServer(data) {
+    hideContent();
     showLoading();
     fetch(`${baseUrl}/submit`, {
         method: 'POST',
@@ -53,7 +65,9 @@ function sendToServer(data) {
 function showLoading() {
     const loadingContent = document.getElementById("loading");
     loadingContent.innerHTML = `
-        <p>Submetendo resposta...</p>
+        <div class="card" style="text-align: center;">
+            <p>Submetendo resposta...</p>
+        </div>
     `;
 }
 
@@ -62,19 +76,23 @@ function hideLoading() {
     loadingContent.innerText = '';
 }
 
+function hideContent() {
+    const content = document.getElementById("forms");
+    content.innerHTML = '';
+    const formsDescription = document.getElementById("forms-description");
+    formsDescription.innerHTML = '';
+}
+
 function showFormsAnswered() {
     const loading = document.getElementById("answered");
     const div = document.createElement("div");
     div.classList.add("answered-content");
     div.classList.add("card");
     const p = document.createElement("p");
+    p.style.textAlign = "center";
     p.innerText = "Resposta submetida. 🎉🎉🎉";
     div.appendChild(p);
     loading.appendChild(div);
-    const content = document.getElementById("forms");
-    content.innerHTML = '';
-    const formsDescription = document.getElementById("forms-description");
-    formsDescription.innerHTML = '';
 }
 
 async function main() {
@@ -91,8 +109,90 @@ async function main() {
     console.log(`Escalação para o mês ${monthSelected}`);
     await getDaysOfMass();
     setDaysInUI(days);
+    const response = await getMassGroups();
+    setMassGroupsInUI(response.groups);
     const submitButton = document.getElementById('submit-button');
     submitButton.addEventListener('click', submit);
+}
+
+async function getMassGroups() {
+    try {
+        const response = await fetch(`${baseUrl}/getMassGroups`, { method: 'GET' });
+        if(response.status !== 200) {
+            console.error('An error ocorred when get mass groups:', response); 
+            alert('Ocorreu um erro ao obter grupos de missa especifícas');
+            return; 
+        }
+        return response.json();
+    } catch(error) {
+        console.error('An error ocorred when get mass groups:', error); 
+        alert('Ocorreu um erro ao obter grupos de missa especifícas');
+    }
+}
+
+async function setMassGroupsInUI(groups) {
+    const groupsContent = document.getElementById("groups-content");
+    console.log('groups:', groups);
+    groups.forEach(g => {
+        const card = document.createElement("div");
+        card.classList.add("card"); 
+        card.classList.add("card-disponibilidade"); 
+        const h4 = document.createElement("h4");
+        h4.innerText = g.nome;
+        const ul = document.createElement("ul");
+        ul.classList.add("list");
+        ul.id = `${g.id}:list`;
+        card.appendChild(h4);
+        card.appendChild(ul);
+        groupsContent.appendChild(card);
+        addMissasOfGroup(`${g.id}:list`, g);
+    });
+}
+
+function addMissasOfGroup(idList, group) {
+    console.log('id list:', idList);
+    const list = document.getElementById(idList);
+    console.log(list);
+    group.missas.forEach(m => {
+        const li = document.createElement("li");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = `checkbox:${m.id}`;
+        input.addEventListener('click', selectMassByCheck)
+        input.id = `checkbox:${m.id}`;
+        const label = document.createElement("span");
+        const date = new Date(m.date.nanoseconds);
+        label.innerText = `${mapIntToDayWeek[date.getDay()]}, dia ${String(date.getDate()).padStart(2, '0')}`
+        label.innerText += `/${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const minutesStr = date.getMinutes() == 0 ? '' : `:${String(date.getMinutes()).padStart(2, '0')}`;
+        label.innerText += `, às ${String(date.getHours()).padStart(2, '0')}h${minutesStr} (${m.description})`;
+        li.appendChild(input);
+        li.appendChild(label);
+        li.classList.add("group__list__item");
+        li.id = m.id;
+        li.addEventListener('click', selectMassOfGroup);
+        list.appendChild(li);
+    });
+}
+
+function selectMassByCheck() {
+    const check = this;
+    const li = document.getElementById(check.id.split(':')[1]);
+    li.click();
+}
+
+function selectMassOfGroup() {
+    const liItem = this;
+    console.log(liItem);
+    const checkbox = document.getElementById(`checkbox:${liItem.id}`); 
+    if(checkbox.checked) {
+        const i = massSelecteds.indexOf(liItem.id);
+        massSelecteds.splice(i, 1);
+    } else {
+        massSelecteds.push(liItem.id); 
+    }
+    checkbox.checked = !checkbox.checked;
+    console.log(massSelecteds);
 }
 
 function selectDayByCheck(dayId) {
@@ -226,7 +326,8 @@ async function submit() {
         daysSelected,
         name,
         monthSelected,
-        obs
+        obs,
+        massSelecteds
     });
 }
 

@@ -112,6 +112,18 @@ body {
     border-radius: 10px;
 }
 
+.list {
+    list-style-type: none;
+}
+
+.group__list__item {
+     
+}
+
+.group__list__item:hover {
+    cursor: pointer;
+}
+
 .daysOfMissaContainer {
 }
 

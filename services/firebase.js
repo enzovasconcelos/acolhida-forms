@@ -84,3 +84,89 @@ export const getDaysOfMass = async () => {
 export const setObs = (name, obs) => {
     return setDoc(doc(db, 'servidores', name), { obs });
 };
+
+const getMissasOfGroup = async (groupId) => {
+    const groupRef = doc(db, 'grupos', groupId);
+    console.log('groupref: ', groupRef);
+    return new Promise(async (resolve, reject) => {
+        try {
+            const q = query(collection(db, 'missas'), where('grupo', '==', groupRef));
+            const docs = await getDocs(q);
+            const missas = [];
+            docs.forEach(d => {
+                missas.push({
+                    id: d.id,
+                    ...d.data()
+                });
+            });
+            console.log('missas');
+            console.log(missas);
+            resolve(missas);
+        } catch(error) {
+            reject(error);
+        }
+    });
+};
+
+export const getMassGroups = async () => {    
+    try {
+        const groups = [];
+        const q = query(collection(db, 'grupos'), where("habilitado", "==", true));
+        const groupsDb = await getDocs(q);
+        const missasPromises = [];
+        groupsDb.forEach(doc => {
+            groups.push({
+                id: doc.id,
+                ...doc.data()
+            });
+            missasPromises.push(getMissasOfGroup(doc.id));
+        });
+
+        console.log('groups');
+        console.log(groups);
+        const missasGroups = await Promise.all(missasPromises);
+        for(let i = 0; i < missasGroups.length; i++) {
+            groups[i].missas = missasGroups[i];
+        }
+        console.log('groups');
+        console.log(groups);
+        return groups;
+    } catch(error) {
+        console.error("error when get mass groups:", error);
+        throw new Exception();
+    }
+};
+
+const addNewMassDisponibilidades = async (massSelecteds, servidorName, monthSelected) => {
+    const promises = [];
+    console.log(massSelecteds);
+    massSelecteds.forEach(mId => {
+        const massSelectedRef = doc(db, "missas", mId);
+        const disponibilidade = {
+            servidorName,
+            massSelectedRef,
+            monthSelected
+        }; 
+        promises.push(addDoc(collection(db, 'disponibilidadesMissa'), disponibilidade));
+    });
+
+    return Promise.all(promises);
+};
+
+const deleteOldMassDisponibilidades = async (servidorName, monthSelected) => {
+    const q = query(collection(db, 'disponibilidadesMissa'), where('servidorName', '==', servidorName),
+                                                            where('monthSelected', '==', monthSelected));
+    const docs = await getDocs(q);
+    console.log(`mass disponibilidades antigas de ${servidorName} e mês ${monthSelected}`);
+    console.log(docs);
+    const promises = [];
+    docs.forEach(disponibilidade => {
+        promises.push(deleteDoc(doc(db, 'disponibilidadesMissa', ade.id)));
+    });
+    await Promise.all(promises);
+};
+
+export const addMassDisponibilidades = async (massSelecteds, servidorName, monthSelected) => {
+    await deleteOldMassDisponibilidades(servidorName, monthSelected);
+    return addNewMassDisponibilidades(massSelecteds, servidorName, monthSelected);
+};
