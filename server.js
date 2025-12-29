@@ -4,7 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { deleteOldDisponibilidades, 
         mapDaysToDisponibilidades, 
-        addNewDisponibilidades, setObs, getDaysOfMass} from './services/firebase.js'
+        addNewDisponibilidades, setObs, getDaysOfMass,
+        getMassGroups, addMassDisponibilidades } from './services/firebase.js'
 
 const app = express();
 const PORT = 8080;
@@ -34,20 +35,36 @@ app.get('/getDaysOfMass', async (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
-    console.log(req.body);
-    const { name, obs, daysSelected, monthSelected } = req.body;
+    const { name, obs, daysSelected, monthSelected, massSelecteds } = req.body;
     console.log('name:', name)
     console.log('obs', obs)
     console.log('daysSelected:', daysSelected)
     console.log('monthSelected:', monthSelected)
+    console.log('massSelecteds:', massSelecteds)
     // TODO: validações + try catch
     await setObs(name, obs);
     await deleteOldDisponibilidades(name, monthSelected); 
     const daysSelectedDb = mapDaysToDisponibilidades(daysSelected, name, monthSelected);
     await addNewDisponibilidades(daysSelectedDb); 
+    await addMassDisponibilidades(massSelecteds, name, monthSelected);
     res.json({
         success: true
     });
+});
+
+app.get('/getMassGroups', async (_, res) => {
+    try {
+        const groups = await getMassGroups();
+        res.json({
+            success: true,
+            groups
+        });
+    } catch(error) {
+        res.status(500).json({
+            success: false,
+            error: error
+        });
+    }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
