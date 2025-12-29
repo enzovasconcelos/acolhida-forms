@@ -158,6 +158,8 @@ function addMissasOfGroup(idList, group) {
         const input = document.createElement("input");
         input.type = "checkbox";
         input.id = `checkbox:${m.id}`;
+        input.addEventListener('click', selectMassByCheck)
+        input.id = `checkbox:${m.id}`;
         const label = document.createElement("span");
         const date = new Date(m.date.nanoseconds);
         label.innerText = `${mapIntToDayWeek[date.getDay()]}, dia ${String(date.getDate()).padStart(2, '0')}`
@@ -171,6 +173,12 @@ function addMissasOfGroup(idList, group) {
         li.addEventListener('click', selectMassOfGroup);
         list.appendChild(li);
     });
+}
+
+function selectMassByCheck() {
+    const check = this;
+    const li = document.getElementById(check.id.split(':')[1]);
+    li.click();
 }
 
 function selectMassOfGroup() {
