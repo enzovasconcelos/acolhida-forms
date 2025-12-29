@@ -108,26 +108,31 @@ const getMissasOfGroup = async (groupId) => {
     });
 };
 
+const mapGroupsDbToGroups = (groupsDb, groupsArray, missasPromises) => {
+    groupsDb.forEach(doc => {
+        groupsArray.push({
+            id: doc.id,
+            ...doc.data()
+        });
+        missasPromises.push(getMissasOfGroup(doc.id));
+    });
+};
+
+const attachMissasToGruops = (groups, missasGroups) => {
+    for(let i = 0; i < missasGroups.length; i++) {
+        groups[i].missas = missasGroups[i];
+    }
+};
+
 export const getMassGroups = async () => {    
     try {
         const groups = [];
         const q = query(collection(db, 'grupos'), where("habilitado", "==", true));
         const groupsDb = await getDocs(q);
         const missasPromises = [];
-        groupsDb.forEach(doc => {
-            groups.push({
-                id: doc.id,
-                ...doc.data()
-            });
-            missasPromises.push(getMissasOfGroup(doc.id));
-        });
-
-        console.log('groups');
-        console.log(groups);
+        mapGroupsDbToGroups(groupsDb, groups, missasPromises);
         const missasGroups = await Promise.all(missasPromises);
-        for(let i = 0; i < missasGroups.length; i++) {
-            groups[i].missas = missasGroups[i];
-        }
+        attachMissasToGruops(groups, missasGroups);
         console.log('groups');
         console.log(groups);
         return groups;
