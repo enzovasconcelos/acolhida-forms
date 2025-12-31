@@ -24,17 +24,33 @@ let monthSelected = -1;
 let baseUrl = "";
 let massSelecteds = [];
 
+
+function showErrorScreen(message) {
+    const loading = document.getElementById("loading");
+    const mainContent = document.getElementById("forms");
+    loading.innerHTML = "";
+    mainContent.innerHTML = "";
+    const errorContent = document.getElementById("error-screen");
+    errorContent.innerHTML = `
+        <div style="text-align: center;" class="card card-error">
+            <p style="color: white;">${message}</p>
+        </div>
+    `;
+}
+
 const getDaysOfMass = async () => { 
     try {
         const response = await fetch(`${baseUrl}/getDaysOfMass`, { method: 'GET' });
         if(response.status !== 200) {
             console.error('An error when try get days of mass:', response);
+            showErrorScreen("Ocorreu um erro ao buscas os dias de Missa. 😟");
             return;
         }
         const body = await response.json();
         days = body.days;
     } catch(error) {
         console.error("An error ocorred when get Days of mass:", error);
+        showErrorScreen("Ocorreu um erro ao buscas os dias de Missa. 😟");
     }
 }
 
@@ -50,6 +66,8 @@ function sendToServer(data) {
     }).then(response => {
         if(response.status !== 200) {
             console.error("An error ocurred to submit forms:", response);
+            showErrorScreen("Ocorreu um erro ao submeter suas respostas. 😟");
+            throw new Error("Response status not success in send to server");
         }
         return response.json();
     }).then(data => {
@@ -59,6 +77,7 @@ function sendToServer(data) {
     })
     .catch(error => {
         console.error(error);
+        showErrorScreen("Ocorreu um erro ao submeter suas respostas. 😟");
     });
 }
 
@@ -108,7 +127,13 @@ function getMonthFromUrl() {
 }
 
 async function main() {
-    monthSelected = getMonthFromUrl();
+    try {
+        monthSelected = getMonthFromUrl();
+    } catch(error) {
+        console.error('erro ao definir mês:', error);
+        showErrorScreen("O mês para qual está sendo feita a escalação não está definido. 😟");
+        return;
+    }
     console.log(`Escalação para o mês ${monthSelected}`);
     baseUrl = window.location.origin;
     await getDaysOfMass();
@@ -128,13 +153,14 @@ async function getMassGroups() {
         const response = await fetch(`${baseUrl}/getMassGroups`, { method: 'GET' });
         if(response.status !== 200) {
             console.error('An error ocorred when get mass groups:', response); 
-            alert('Ocorreu um erro ao obter grupos de missa especifícas');
+            showErrorScreen('Ocorreu um erro ao obter grupos de missa especifícas 😟');
             return; 
         }
         return response.json();
     } catch(error) {
         console.error('An error ocorred when get mass groups:', error); 
         alert('Ocorreu um erro ao obter grupos de missa especifícas');
+        showErrorScreen("Ocorreu um erro ao obter os dias de missa específicos. 😟");
     }
 }
 

@@ -15,6 +15,10 @@
     flex: 20;
 }
 
+.card-error {
+    background-color: #ff70bf;
+}
+
 .card-disponibilidade {
     flex: 40;
     flex-direction: column;

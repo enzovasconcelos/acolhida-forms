@@ -36,7 +36,7 @@ app.get('/getDaysOfMass', async (_, res) => {
     }
 });
 
-async function updateDisponibilidade(name, daysSelected, monthSelected) {
+async function updateDisponibilidades(name, daysSelected, monthSelected) {
     return new Promise(async (resolve, reject) => {
         try {
             await deleteOldDisponibilidades(name, monthSelected); 
