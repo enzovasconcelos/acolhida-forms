@@ -5,8 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node main.js",
+    "dev": "nodemon main.js",
     "test": "jest"
   },
   "author": "Enzo",
