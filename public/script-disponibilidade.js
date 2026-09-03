@@ -64,7 +64,7 @@ function sendToServer(data) {
         },
         body: JSON.stringify(data)
     }).then(response => {
-        if(response.status !== 200) {
+        if(response.status !== 201) {
             console.error("An error ocurred to submit forms:", response);
             showErrorScreen("Ocorreu um erro ao submeter suas respostas. 😟");
             throw new Error("Response status not success in send to server");

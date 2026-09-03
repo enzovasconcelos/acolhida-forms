@@ -137,3 +137,18 @@ body {
 img {
     height: 20vh;
 }
+
+.lineup-container {
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.missa-div {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
