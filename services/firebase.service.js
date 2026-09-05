@@ -3,6 +3,7 @@ import { getFirestore,
   collection, 
   addDoc, 
   setDoc, 
+  getDoc, 
   deleteDoc, 
   query, 
   where, 
@@ -21,6 +22,12 @@ const firebaseConfig = {
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
+const collectionsName = {
+    disponibilidades: 'disponibilidades',
+    servidores: 'servidores',
+    diasDeMissa: 'diasDeMissa'
+}
+
 const getDisponibilidades = async (servidor, month) => {
     const disponibilidades = [];
     const servidorRef = doc(db, 'servidores', servidor);
@@ -36,8 +43,38 @@ const getDisponibilidades = async (servidor, month) => {
     return disponibilidades;
 };
 
+const getDisponibilidadesServidor = async (servidor) => {
+    const disponibilidades = [];
+    const servidorRef = doc(db, 'servidores', servidor);
+    const q = query(collection(db, 'disponibilidades'), where('servidor', '==', servidorRef));
+    const disponibilidadesBd = await getDocs(q);
+    disponibilidadesBd.forEach(doc => {
+        disponibilidades.push({
+          id: doc.id,
+          ...doc.data()
+        });
+    });
+    return disponibilidades;
+};
+
+export const getDisponiveisDia = async(diaDeMissa, month) => {
+    const diaDeMissaRef = doc(db, collectionsName.diasDeMissa, diaDeMissa.id);
+    const q = query(collection(db, collectionsName.disponibilidades), where('mes', '==', month),
+                                                         where('diaDeMissa', '==', diaDeMissaRef))
+    const disponibilidades = [];
+    const disponibilidadesBd = await getDocs(q);
+    disponibilidadesBd.forEach(doc => {
+        disponibilidades.push({
+            id: doc.id,
+            ...doc.data()
+        })
+    });
+    return disponibilidades;
+};
+
 export const deleteOldDisponibilidades = async (name, month) => {
-    const disponibilidades = await getDisponibilidades(name, month);
+    //const disponibilidades = await getDisponibilidades(name, month);
+    const disponibilidades = await getDisponibilidadesServidor(name, month);
     console.log(`disponibilidades antigas de ${name} e mês ${month}`);
     console.log(disponibilidades);
     const promises = [];
@@ -79,10 +116,6 @@ export const getDaysOfMass = async () => {
         days[doc.id] = doc.data();
     });
     return days;
-};
-
-export const setObs = (name, obs) => {
-    return setDoc(doc(db, 'servidores', name), { obs });
 };
 
 const getMissasOfGroup = async (groupId) => {
@@ -159,8 +192,11 @@ const addNewMassDisponibilidades = async (massSelecteds, servidorName, monthSele
 };
 
 const deleteOldMassDisponibilidades = async (servidorName, monthSelected) => {
-    const q = query(collection(db, 'disponibilidadesMissa'), where('servidorName', '==', servidorName),
-                                                            where('monthSelected', '==', monthSelected));
+    const q = query(
+        collection(db, 'disponibilidadesMissa'), 
+        where('servidorName', '==', servidorName),
+        where('monthSelected', '==', monthSelected)
+    );
     const docs = await getDocs(q);
     console.log(`mass disponibilidades antigas de ${servidorName} e mês ${monthSelected}`);
     console.log(docs);
@@ -175,3 +211,31 @@ export const addMassDisponibilidades = async (massSelecteds, servidorName, month
     await deleteOldMassDisponibilidades(servidorName, monthSelected);
     return addNewMassDisponibilidades(massSelecteds, servidorName, monthSelected);
 };
+
+export const getDiasDeMissa = async() => {
+    const q = query(collection(db, collectionsName.diasDeMissa), where("habilitado", "==", true));
+    const docs = await getDocs(q);
+    const days = [];
+    docs.forEach(d => {
+        days.push({id: d.id, ...d.data()});
+    });
+    return days;
+};
+
+export async function getAvailabilityOfMember(memberName, month) {
+    const memberRef = doc(db, collectionsName.servidores, memberName)
+    const q = query(
+        collection(db, collectionsName.disponibilidades), 
+        where('servidor', '==', memberRef), 
+        where('mes', '==', month)
+    );
+    const docs = await getDocs(q);
+    const diaDeMissaPromises = [];
+    docs.forEach(async d => {
+        diaDeMissaPromises.push(getDoc(d.data().diaDeMissa));
+    });
+    const dias = await Promise.all(diaDeMissaPromises);
+    return dias.map(d => { 
+        return { ...d.data() };
+    });
+}

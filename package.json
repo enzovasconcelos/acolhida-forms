@@ -5,8 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node main.js",
+    "dev": "nodemon main.js",
     "test": "jest"
   },
   "author": "Enzo",
@@ -15,7 +15,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "firebase": "^12.7.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.14"
   },
   "devDependencies": {
     "jest": "^30.2.0"

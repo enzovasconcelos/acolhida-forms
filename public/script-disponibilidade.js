@@ -64,7 +64,7 @@ function sendToServer(data) {
         },
         body: JSON.stringify(data)
     }).then(response => {
-        if(response.status !== 200) {
+        if(response.status !== 201) {
             console.error("An error ocurred to submit forms:", response);
             showErrorScreen("Ocorreu um erro ao submeter suas respostas. 😟");
             throw new Error("Response status not success in send to server");
@@ -344,7 +344,6 @@ function addDaySelected() {
 
 async function submit() {
     const name = document.getElementById('nome').value;
-    const obs = document.getElementById('obs').value;
     if(!name) {
       console.log('submission cancelled. Name invalid');
       alert('Nome vazio');
@@ -353,14 +352,12 @@ async function submit() {
     console.log('submiting: ', {
         daysSelected,
         name,
-        monthSelected,
-        obs
+        monthSelected
     })
     sendToServer({
         daysSelected,
         name,
         monthSelected,
-        obs,
         massSelecteds
     });
 }
