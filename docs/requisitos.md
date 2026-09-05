@@ -28,6 +28,8 @@ duas vezes.
 E deve se evitar um integrante de servir em missas de dias seguidos. 
 No futuro: evitar pessoas que tem laços de família. Um integrante casal conta duas
 vezes, mas é como um integrante só.
+Deve ser retornado também as pessoas que ficaram sem servir e quais serviram mais de uma
+vez.
 
 6. Eu, como coordenador, posso editar uma escalação, onde o sistema mostrar as restrições ao 
 coordenador durante a edição.
