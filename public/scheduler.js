@@ -1,5 +1,5 @@
 let monthSelected;
-const baseUrl = "http://localhost:8080"
+let baseUrl;
 
 function mapNumberToDays(dia) {
     const dayInStr = {
@@ -30,6 +30,7 @@ function getMonthFromUrl() {
 }
 
 async function main() { 
+    baseUrl = window.location.origin;
     try {
         monthSelected = getMonthFromUrl();
     } catch(error) {

@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:8080";
+let baseUrl;
 
 const mapIntToDayWeek = {
     0: 'Domingo',
@@ -23,6 +23,7 @@ function getMonthFromUrl() {
 }
 
 async function main() {
+    baseUrl = window.location.origin;
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const memberName = urlParams.get('memberName');
