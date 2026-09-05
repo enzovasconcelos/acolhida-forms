@@ -2,10 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { deleteOldDisponibilidades, 
-        mapDaysToDisponibilidades, 
-        addNewDisponibilidades, setObs, getDaysOfMass,
-        getMassGroups, addMassDisponibilidades } from './services/firebase.service.js'
+import { 
+    deleteOldDisponibilidades, 
+    mapDaysToDisponibilidades, 
+    addNewDisponibilidades, getDaysOfMass,
+    getMassGroups, addMassDisponibilidades,
+    getAvailabilityOfMember
+} from './services/firebase.service.js'
 import { schedule } from './services/scheduler.service.js';
 
 const app = express();
@@ -20,6 +23,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/scheduler', (_, res) => {
     res.sendFile(path.join(__dirname, 'public/scheduler.html'))
+});
+
+app.get('/availability', (_, res) => {
+    res.sendFile(path.join(__dirname, 'public/availability.html'))
 });
 
 app.get('/getDaysOfMass', async (_, res) => {
@@ -55,9 +62,8 @@ async function updateDisponibilidades(name, daysSelected, monthSelected) {
 }
 
 app.post('/submit', async (req, res) => {
-    const { name, obs, daysSelected, monthSelected, massSelecteds } = req.body;
+    const { name, daysSelected, monthSelected, massSelecteds } = req.body;
     console.log('name:', name)
-    console.log('obs', obs)
     console.log('daysSelected:', daysSelected)
     console.log('monthSelected:', monthSelected)
     console.log('massSelecteds:', massSelecteds)
@@ -70,7 +76,7 @@ app.post('/submit', async (req, res) => {
     }
     try {
         const promises = [];
-        promises.push(setObs(name, obs));
+        //promises.push(setObs(name, obs));
         promises.push(updateDisponibilidades(name, daysSelected, monthSelected));
         promises.push(addMassDisponibilidades(massSelecteds, name, monthSelected));
         await Promise.all(promises);
@@ -113,11 +119,37 @@ app.get('/scheduleDisponibilidades', async (req, res) => {
             message: 'month selected invalid'
         });
     } else {
-        const lineup = await schedule(monthSelected);
+        const { lineup, count } = await schedule(monthSelected);
         res.status(200).json({
             success: true,
-            lineup
+            lineup,
+            count
         }); 
+    }
+});
+
+app.get('/members/:memberId/availability', async (req, res) => {
+    const memberId = req.params.memberId;
+    const month = parseInt(req.query.month);
+    try {
+        const availability = await getAvailabilityOfMember(memberId, month);
+        console.log('availability: ', availability);
+        if(availability == null) {
+            res.status(404).json({
+                success: false,
+                message: "memeber not found"
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                availability
+            });   
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 });
 

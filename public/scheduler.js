@@ -1,4 +1,5 @@
-let monthSelected = 11;
+let monthSelected;
+const baseUrl = "http://localhost:8080"
 
 function mapNumberToDays(dia) {
     const dayInStr = {
@@ -37,26 +38,26 @@ async function main() {
         return;
     }
     console.log('ready to get disponibilidades')
-    const data = await fetch(`http://localhost:8080/scheduleDisponibilidades?monthSelected=${monthSelected}`)
+    const data = await fetch(`${baseUrl}/scheduleDisponibilidades?monthSelected=${monthSelected}`)
     const response = await data.json();
     console.log(response);
     showLineup(response.lineup);
+    showStats(response.count);
 }
 
 function showLineup(lineup) {
     const container = document.getElementById('container');
-    console.log(lineup);
     lineup = lineup.sort((m1, m2) => {
         const dayDiff = m1.dia - m2.dia;
         if(dayDiff != 0) {
             return dayDiff;
         }
-        const hora1 = m1.diaDeMissa.horario.hora;
+        /*const hora1 = m1.diaDeMissa.horario.hora;
         const hora2 = m2.diaDeMissa.horario.hora;
         const horaDiff = hora1 - hora2;
         if(horaDiff != 0) {
             return horaDiff;
-        }
+        }*/
         const minutos1 = m1.diaDeMissa.horario.minutos;
         const minutos2 = m2.diaDeMissa.horario.minutos;
         minutos1 - minutos2;
@@ -76,6 +77,52 @@ function showLineup(lineup) {
         missaDiv.classList.add('missa-div');
         container.appendChild(missaDiv);
     });
+}
+
+function showStats(count) {
+    const container = document.getElementById('stats');
+    const ul = document.createElement('ul');        
+    console.log(count);
+    for (const [memberName, scheduledTimes] of Object.entries(count)) {
+        if (scheduledTimes == 0) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <a 
+                    href="${baseUrl}/availability?memberName=${memberName}&month=${monthSelected}"
+                    target="_blank"
+                    class="link"
+                >
+                    ${memberName}
+                <\a>
+            `;
+            ul.appendChild(li);
+        }
+    }
+    container.appendChild(ul);
+    
+    const twiceTitle = document.createElement('h4');
+    twiceTitle.innerText = "Serviram duas vezes";
+    container.appendChild(twiceTitle);
+    
+    const ulTwice = document.createElement('ul');
+    for (const [memberName, scheduledTimes] of Object.entries(count)) {
+        console.log(memberName);
+        console.log(scheduledTimes);
+        if (scheduledTimes == 2) {
+            const li = document.createElement('li');
+            li.innerHTML = 
+                `<a 
+                    href="${baseUrl}/availability?memberName=${memberName}&month=${monthSelected}" 
+                    target="_blank"
+                    class="link"
+                >
+                    ${memberName}
+                </a>`;
+            ulTwice.appendChild(li);
+        }
+    }
+    
+    container.appendChild(ulTwice);
 }
 
 main();

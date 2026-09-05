@@ -3,6 +3,7 @@ import { getFirestore,
   collection, 
   addDoc, 
   setDoc, 
+  getDoc, 
   deleteDoc, 
   query, 
   where, 
@@ -117,10 +118,6 @@ export const getDaysOfMass = async () => {
     return days;
 };
 
-export const setObs = (name, obs) => {
-    return setDoc(doc(db, 'servidores', name), { obs });
-};
-
 const getMissasOfGroup = async (groupId) => {
     const groupRef = doc(db, 'grupos', groupId);
     console.log('groupref: ', groupRef);
@@ -195,8 +192,11 @@ const addNewMassDisponibilidades = async (massSelecteds, servidorName, monthSele
 };
 
 const deleteOldMassDisponibilidades = async (servidorName, monthSelected) => {
-    const q = query(collection(db, 'disponibilidadesMissa'), where('servidorName', '==', servidorName),
-                                                            where('monthSelected', '==', monthSelected));
+    const q = query(
+        collection(db, 'disponibilidadesMissa'), 
+        where('servidorName', '==', servidorName),
+        where('monthSelected', '==', monthSelected)
+    );
     const docs = await getDocs(q);
     console.log(`mass disponibilidades antigas de ${servidorName} e mês ${monthSelected}`);
     console.log(docs);
@@ -221,3 +221,21 @@ export const getDiasDeMissa = async() => {
     });
     return days;
 };
+
+export async function getAvailabilityOfMember(memberName, month) {
+    const memberRef = doc(db, collectionsName.servidores, memberName)
+    const q = query(
+        collection(db, collectionsName.disponibilidades), 
+        where('servidor', '==', memberRef), 
+        where('mes', '==', month)
+    );
+    const docs = await getDocs(q);
+    const diaDeMissaPromises = [];
+    docs.forEach(async d => {
+        diaDeMissaPromises.push(getDoc(d.data().diaDeMissa));
+    });
+    const dias = await Promise.all(diaDeMissaPromises);
+    return dias.map(d => { 
+        return { ...d.data() };
+    });
+}

@@ -30,9 +30,7 @@ const buildMissas = async (month) => {
     const missas = [];
     const diasDeMissa = await getDiasDeMissa();
     const auxDate = new Date();
-    //if(month < auxDate.getMonth()) {
-      //  auxDate.setFullYear(auxDate.getFullYear() + 1);
-    //}
+    let allPerson = new Set();
     auxDate.setFullYear(verifyMonthIfMonthIsFromNextYear(month, auxDate));
     for(let dia = 1; dia <= getLastDayOfMonth(); dia++) {
         auxDate.setDate(dia);
@@ -40,7 +38,7 @@ const buildMissas = async (month) => {
         for(let diaDeMissa of massDays) {
             console.log(diaDeMissa);
             const disponiveis = await getDisponiveisDia(diaDeMissa, month);
-            console.log(disponiveis);
+            allPerson = allPerson.union(new Set(getMembersOfAnswer(disponiveis)));
             missas.push({
                 dia: dia, 
                 horario: String(diaDeMissa.horario.hora).padStart(2, '0') + ":" + 
@@ -51,8 +49,12 @@ const buildMissas = async (month) => {
             });
         }
     }
-    console.log("build mass of month: ", missas);
-    return missas;
+
+    return [missas, allPerson];
+}
+
+function getMembersOfAnswer(answer) {
+    return answer.map(a => a.servidor.id);
 }
 
 function howManyMassDays(auxDate, massDays) {
@@ -66,13 +68,19 @@ function howManyMassDays(auxDate, massDays) {
 }
 
 export const schedule = async (month) => {
-    let missas = await buildMissas(month);
+    let [missas,  allPerson] = await buildMissas(month);
     missas = missas.sort((m1, m2) => m1.disponiveis.length - m2.disponiveis.length);
-    const contagem = {};
+    const contagem = new Map();
+    allPerson.forEach(p => { 
+        contagem[p] = 0 
+    });
     for(let { disponiveis, escalacao } of missas) {
         fillEscalacao(disponiveis, escalacao, contagem);
     }
-    return missas;
+    return {
+        lineup: missas,
+        count: contagem
+    };
 };
 
 const ehCasal = nome => nome.split(" e ").length > 1;
