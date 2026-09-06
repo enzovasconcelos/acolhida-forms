@@ -143,14 +143,21 @@ img {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 10px 20px;
 }
 
 .missa-div {
+    border-color: white;
+    border-style: solid;
     background-color: white;
     padding: 10px;
     border-radius: 10px;
+    flex-grow: 1;
+}
+
+.missa-div:hover {
+    background-color: #dddbdb;
 }
 
 .link {
