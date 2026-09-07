@@ -30,19 +30,20 @@ const buildMissas = async (month) => {
     const missas = [];
     const diasDeMissa = await getDiasDeMissa();
     const auxDate = new Date();
+    auxDate.setMonth(month);
     let allPerson = new Set();
     auxDate.setFullYear(verifyMonthIfMonthIsFromNextYear(month, auxDate));
-    for(let dia = 1; dia <= getLastDayOfMonth(); dia++) {
-        auxDate.setDate(dia);
+    for(let date = 1; date <= getLastDayOfMonth(); date++) {
+        auxDate.setDate(date);
         const massDays = howManyMassDays(auxDate, diasDeMissa);
         for(let diaDeMissa of massDays) {
             console.log(diaDeMissa);
             const disponiveis = await getDisponiveisDia(diaDeMissa, month);
             allPerson = allPerson.union(new Set(getMembersOfAnswer(disponiveis)));
             missas.push({
-                dia: dia, 
+                dia: date, 
                 horario: String(diaDeMissa.horario.hora).padStart(2, '0') + ":" + 
-                         String(diaDeMissa.horario.minutos).padStart(2, '0'),
+                String(diaDeMissa.horario.minutos).padStart(2, '0'),
                 diaDeMissa: diaDeMissa,
                 escalacao: [],
                 disponiveis: disponiveis 

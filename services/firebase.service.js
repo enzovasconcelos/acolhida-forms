@@ -59,8 +59,11 @@ const getDisponibilidadesServidor = async (servidor) => {
 
 export const getDisponiveisDia = async(diaDeMissa, month) => {
     const diaDeMissaRef = doc(db, collectionsName.diasDeMissa, diaDeMissa.id);
-    const q = query(collection(db, collectionsName.disponibilidades), where('mes', '==', month),
-                                                         where('diaDeMissa', '==', diaDeMissaRef))
+    const q = query(
+        collection(db, collectionsName.disponibilidades), 
+        where('mes', '==', month),
+        where('diaDeMissa', '==', diaDeMissaRef)
+    )
     const disponibilidades = [];
     const disponibilidadesBd = await getDocs(q);
     disponibilidadesBd.forEach(doc => {
@@ -230,12 +233,18 @@ export async function getAvailabilityOfMember(memberName, month) {
         where('mes', '==', month)
     );
     const docs = await getDocs(q);
+    
+    const memberAvailability = [];
     const diaDeMissaPromises = [];
     docs.forEach(async d => {
-        diaDeMissaPromises.push(getDoc(d.data().diaDeMissa));
+        const data = d.data();
+        memberAvailability.push(data);
+        diaDeMissaPromises.push(getDoc(data.diaDeMissa));
     });
-    const dias = await Promise.all(diaDeMissaPromises);
-    return dias.map(d => { 
-        return { ...d.data() };
-    });
+
+    const massDays = await Promise.all(diaDeMissaPromises);
+    for (let i = 0; i < massDays.length; i++) {
+        memberAvailability[i].diaDeMissa = massDays[i].data();
+    }
+    return memberAvailability;
 }

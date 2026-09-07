@@ -39,7 +39,7 @@ async function main() {
         alert('Algo deu errado ao buscar disponibilidades de ' + memberName);
         return;
     }
-    const schedules = responseData.availability.map(a => a.horario);
+    const schedules = responseData.availability;
     showAvailability(memberName, schedules);
 }
 
@@ -52,10 +52,26 @@ function showAvailability(memberName, availability) {
     const ul = document.createElement('ul');
     availability.forEach(a => {
         const li = document.createElement('li');
-        li.innerText = `${mapIntToDayWeek[a.dia]} ${a.hora}:${a.minutos}`;
+        const time = a.diaDeMissa.horario;
+        li.innerHTML = `
+            <bold>${mapIntToDayWeek[time.dia]} ${time.hora}h${formatMinutes(time.minutos)}</bold><br>
+            dias:${a.dias.map(d => ` ${d}`)}
+        `;
         ul.appendChild(li);
     });
     container.appendChild(ul);
+}
+
+function formatMinutes(minutes) {
+    if (minutes == 0) {
+        return "";
+    } else {
+        return formatTime((minutes));
+    }
+}
+
+function formatTime(minutes) {
+    return String(minutes).padStart(2, '0');
 }
 
 main();

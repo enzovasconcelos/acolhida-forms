@@ -66,7 +66,8 @@ function showLineup(lineup) {
     lineup.forEach(missa => {
         const missaDiv = document.createElement('div');
         const h4 = document.createElement('h4');
-        h4.innerText = `${mapNumberToDays(missa.dia)} ${missa.dia}/11/2026 ${missa.horario}`;
+        const dayWeek = missa.diaDeMissa.horario.dia;
+        h4.innerText = `${mapNumberToDays(missa.dia)} ${missa.dia}/${monthSelected + 1}/2026 ${missa.horario}`;
         const ul = document.createElement('ul');
         missa.escalacao.forEach(escalado => {
             const il = document.createElement('li');

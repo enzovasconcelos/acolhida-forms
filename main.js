@@ -62,11 +62,11 @@ async function updateDisponibilidades(name, daysSelected, monthSelected) {
 }
 
 app.post('/submit', async (req, res) => {
-    const { name, daysSelected, monthSelected, massSelecteds } = req.body;
-    console.log('name:', name)
-    console.log('daysSelected:', daysSelected)
-    console.log('monthSelected:', monthSelected)
-    console.log('massSelecteds:', massSelecteds)
+    let { name, daysSelected, monthSelected, massSelecteds } = req.body;
+    console.debug('name:', name)
+    console.debug('daysSelected:', daysSelected)
+    console.debug('monthSelected:', monthSelected)
+    console.debug('massSelecteds:', massSelecteds)
     if(!name || !daysSelected || !monthSelected) {
         res.status(400).json({
             success: false,
@@ -75,6 +75,7 @@ app.post('/submit', async (req, res) => {
         return;
     }
     try {
+        name = name.trim();
         const promises = [];
         //promises.push(setObs(name, obs));
         promises.push(updateDisponibilidades(name, daysSelected, monthSelected));
