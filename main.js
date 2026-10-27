@@ -7,7 +7,8 @@ import {
     mapDaysToDisponibilidades, 
     addNewDisponibilidades, getDaysOfMass,
     getMassGroups, addMassDisponibilidades,
-    getAvailabilityOfMember
+    getAvailabilityOfMember,
+    setObs
 } from './services/firebase.service.js'
 import { schedule } from './services/scheduler.service.js';
 
@@ -62,11 +63,12 @@ async function updateDisponibilidades(name, daysSelected, monthSelected) {
 }
 
 app.post('/submit', async (req, res) => {
-    let { name, daysSelected, monthSelected, massSelecteds } = req.body;
+    let { name, obs, daysSelected, monthSelected, massSelecteds } = req.body;
     console.debug('name:', name)
     console.debug('daysSelected:', daysSelected)
     console.debug('monthSelected:', monthSelected)
     console.debug('massSelecteds:', massSelecteds)
+    console.debug('obs', obs)
     if(!name || !daysSelected || !monthSelected) {
         res.status(400).json({
             success: false,
@@ -77,7 +79,7 @@ app.post('/submit', async (req, res) => {
     try {
         name = name.trim();
         const promises = [];
-        //promises.push(setObs(name, obs));
+        promises.push(setObs(name, obs, monthSelected));
         promises.push(updateDisponibilidades(name, daysSelected, monthSelected));
         promises.push(addMassDisponibilidades(massSelecteds, name, monthSelected));
         await Promise.all(promises);

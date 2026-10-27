@@ -344,6 +344,7 @@ function addDaySelected() {
 
 async function submit() {
     const name = document.getElementById('nome').value;
+    const obs = document.getElementById('obs').value;
     if(!name) {
       console.log('submission cancelled. Name invalid');
       alert('Nome vazio');
@@ -358,7 +359,8 @@ async function submit() {
         daysSelected,
         name,
         monthSelected,
-        massSelecteds
+        massSelecteds,
+        obs
     });
 }
 

@@ -39,8 +39,9 @@ async function main() {
         alert('Algo deu errado ao buscar disponibilidades de ' + memberName);
         return;
     }
-    const schedules = responseData.availability;
+    const schedules = responseData.availability.memberAvailability;
     showAvailability(memberName, schedules);
+    showNotes(responseData.availability.memberNotes);
 }
 
 function showAvailability(memberName, availability) {
@@ -60,6 +61,21 @@ function showAvailability(memberName, availability) {
         ul.appendChild(li);
     });
     container.appendChild(ul);
+}
+
+function showNotes(notes) {
+    console.log(notes);
+    if (!notes) {
+        return;
+    }
+    const container = document.getElementById('container');
+    const title = document.createElement('h4');
+    title.innerText = "Obs: ";
+    container.appendChild(title);
+
+    const p = document.createElement('p');
+    p.innerText = notes;
+    container.appendChild(p);
 }
 
 function formatMinutes(minutes) {

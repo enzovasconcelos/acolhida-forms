@@ -25,7 +25,8 @@ const db = getFirestore(appFirebase);
 const collectionsName = {
     disponibilidades: 'disponibilidades',
     servidores: 'servidores',
-    diasDeMissa: 'diasDeMissa'
+    diasDeMissa: 'diasDeMissa',
+    observations: 'observations'
 }
 
 const getDisponibilidades = async (servidor, month) => {
@@ -225,6 +226,20 @@ export const getDiasDeMissa = async() => {
     return days;
 };
 
+async function getMemberNotes(memberName, month) {
+    const q = query(
+        collection(db, collectionsName.observations),
+        where('memberName', '==', memberName),
+        where('month', '==', month)
+    );
+    const docs = await getDocs(q);
+    let notes = "";
+    docs.forEach(async d => {
+        notes = d.data().note;
+    });
+    return notes;
+}
+
 export async function getAvailabilityOfMember(memberName, month) {
     const memberRef = doc(db, collectionsName.servidores, memberName)
     const q = query(
@@ -246,5 +261,16 @@ export async function getAvailabilityOfMember(memberName, month) {
     for (let i = 0; i < massDays.length; i++) {
         memberAvailability[i].diaDeMissa = massDays[i].data();
     }
-    return memberAvailability;
+    return { 
+        memberAvailability,
+        memberNotes: await getMemberNotes(memberName, month)
+    };
+}
+
+export async function setObs(name, obs, month) {
+    return addDoc(collection(db, collectionsName.observations), {
+        memberName: name,
+        note: obs,
+        month: month
+    });
 }
