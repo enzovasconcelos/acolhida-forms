@@ -58,20 +58,27 @@ const getDisponibilidadesServidor = async (servidor) => {
     return disponibilidades;
 };
 
-export const getDisponiveisDia = async(diaDeMissa, month) => {
+export const getDisponiveisDia = async(diaDeMissa, month, dayOfMonth) => {
     const diaDeMissaRef = doc(db, collectionsName.diasDeMissa, diaDeMissa.id);
     const q = query(
         collection(db, collectionsName.disponibilidades), 
         where('mes', '==', month),
-        where('diaDeMissa', '==', diaDeMissaRef)
+        where('diaDeMissa', '==', diaDeMissaRef),
+        //where('dias', 'array-contains', dayOfMonth)
     )
     const disponibilidades = [];
     const disponibilidadesBd = await getDocs(q);
     disponibilidadesBd.forEach(doc => {
-        disponibilidades.push({
-            id: doc.id,
-            ...doc.data()
-        })
+        const data = doc.data();
+        console.log(data.dias);
+        console.log(diaDeMissa);
+        console.log(`dayOfMonth: ${dayOfMonth}`);
+        if (data.dias.includes(dayOfMonth)) {
+            disponibilidades.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        }
     });
     return disponibilidades;
 };

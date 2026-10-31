@@ -30,15 +30,18 @@ const buildMissas = async (month) => {
     const missas = [];
     const diasDeMissa = await getDiasDeMissa();
     const auxDate = new Date();
-    auxDate.setMonth(month);
+    //auxDate.setMonth(month);
     let allPerson = new Set();
     auxDate.setFullYear(verifyMonthIfMonthIsFromNextYear(month, auxDate));
     for(let date = 1; date <= getLastDayOfMonth(); date++) {
         auxDate.setDate(date);
+        auxDate.setMonth(month);
+        console.log(`month deveria ser 10: ${auxDate.getMonth()}`)
         const massDays = howManyMassDays(auxDate, diasDeMissa);
+        console.log(`dia ${date} possui ${massDays.length} missas`)
         for(let diaDeMissa of massDays) {
             console.log(diaDeMissa);
-            const disponiveis = await getDisponiveisDia(diaDeMissa, month);
+            const disponiveis = await getDisponiveisDia(diaDeMissa, month, date);
             allPerson = allPerson.union(new Set(getMembersOfAnswer(disponiveis)));
             missas.push({
                 dia: date, 
@@ -62,6 +65,8 @@ function howManyMassDays(auxDate, massDays) {
     const result = [];
     for(let diaDeMissa of massDays) {
         if(diaDeMissa.horario.dia === auxDate.getDay()) {
+            console.log(`foi igual o dia ${diaDeMissa.horario.dia} à ${auxDate.getDay()}`)
+            console.log(auxDate)
             result.push(diaDeMissa);
         }
     }
