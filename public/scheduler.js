@@ -12,8 +12,10 @@ function mapNumberToDays(dia) {
         6: 'Sábado',
     };
     const date = new Date();
-    date.setMonth(monthSelected);
     date.setDate(dia);
+    date.setMonth(monthSelected);
+    console.log(date);
+    console.log(`o dia ${dia} sendo mapeado para dia da semana ${dayInStr[date.getDay()]}`);
     return dayInStr[date.getDay()];
 }
 
